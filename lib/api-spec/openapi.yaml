@@ -3,34 +3,927 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Campus Portal API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
-    description: Health operations
+  - name: auth
+  - name: admin
+  - name: faculty
+  - name: student
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
           content:
             application/json:
+              schema: { $ref: "#/components/schemas/HealthStatus" }
+
+  # ===== AUTH =====
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LoginBody" }
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthSession" }
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      responses:
+        "200":
+          description: Current session
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthSession" }
+  /auth/change-password:
+    post:
+      operationId: changePassword
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ChangePasswordBody" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+
+  # ===== ADMIN =====
+  /admin/dashboard:
+    get:
+      operationId: getAdminDashboard
+      tags: [admin]
+      responses:
+        "200":
+          description: Admin dashboard
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminDashboard" }
+  /admin/sheets:
+    get:
+      operationId: getSheetsConfig
+      tags: [admin]
+      responses:
+        "200":
+          description: Sheets config
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SheetsConfig" }
+    put:
+      operationId: updateSheetsConfig
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UpdateSheetsConfigBody" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SheetsConfig" }
+  /admin/sheets/sync:
+    post:
+      operationId: syncSheets
+      tags: [admin]
+      responses:
+        "200":
+          description: Sync result
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SyncResult" }
+  /admin/students:
+    get:
+      operationId: listAllStudents
+      tags: [admin]
+      responses:
+        "200":
+          description: Students
+          content:
+            application/json:
               schema:
-                $ref: "#/components/schemas/HealthStatus"
+                type: array
+                items: { $ref: "#/components/schemas/Student" }
+  /admin/faculties:
+    get:
+      operationId: listAllFaculties
+      tags: [admin]
+      responses:
+        "200":
+          description: Faculties
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Faculty" }
+  /admin/admins:
+    get:
+      operationId: listAdmins
+      tags: [admin]
+      responses:
+        "200":
+          description: Admins
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Admin" }
+    post:
+      operationId: createAdmin
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateAdminBody" }
+      responses:
+        "200":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Admin" }
+  /admin/admins/{adminId}:
+    delete:
+      operationId: deleteAdmin
+      tags: [admin]
+      parameters:
+        - name: adminId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+  /admin/security:
+    get:
+      operationId: getSecuritySettings
+      tags: [admin]
+      responses:
+        "200":
+          description: Security settings
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SecuritySettings" }
+    put:
+      operationId: updateSecuritySettings
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UpdateSecuritySettingsBody" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SecuritySettings" }
+  /admin/audit-logs:
+    get:
+      operationId: listAuditLogs
+      tags: [admin]
+      responses:
+        "200":
+          description: Audit logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AuditLog" }
+  /admin/groups:
+    get:
+      operationId: listAllGroups
+      tags: [admin]
+      responses:
+        "200":
+          description: Groups
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Group" }
+
+  # ===== FACULTY =====
+  /faculty/dashboard:
+    get:
+      operationId: getFacultyDashboard
+      tags: [faculty]
+      responses:
+        "200":
+          description: Faculty dashboard
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FacultyDashboard" }
+  /faculty/groups:
+    get:
+      operationId: listMyGroups
+      tags: [faculty]
+      responses:
+        "200":
+          description: Groups under this faculty
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Group" }
+  /faculty/students:
+    get:
+      operationId: listMyStudents
+      tags: [faculty]
+      responses:
+        "200":
+          description: All students under faculty
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Student" }
+  /faculty/domains:
+    get:
+      operationId: listMyDomains
+      tags: [faculty]
+      responses:
+        "200":
+          description: Domains
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Domain" }
+    post:
+      operationId: createDomain
+      tags: [faculty]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateDomainBody" }
+      responses:
+        "200":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Domain" }
+  /faculty/domains/{domainId}:
+    delete:
+      operationId: deleteDomain
+      tags: [faculty]
+      parameters:
+        - name: domainId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+  /faculty/attendance:
+    post:
+      operationId: markAttendance
+      tags: [faculty]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MarkAttendanceBody" }
+      responses:
+        "200":
+          description: Marked
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+    get:
+      operationId: getAttendanceForDate
+      tags: [faculty]
+      parameters:
+        - name: date
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Attendance entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AttendanceEntry" }
+  /faculty/email:
+    post:
+      operationId: sendEmail
+      tags: [faculty]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SendEmailBody" }
+      responses:
+        "200":
+          description: Sent
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+  /faculty/emails:
+    get:
+      operationId: listSentEmails
+      tags: [faculty]
+      responses:
+        "200":
+          description: Sent emails log
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/EmailLog" }
+  /faculty/notifications:
+    get:
+      operationId: listFacultyNotifications
+      tags: [faculty]
+      responses:
+        "200":
+          description: Notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Notification" }
+  /faculty/notifications/{notificationId}/read:
+    post:
+      operationId: markFacultyNotificationRead
+      tags: [faculty]
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+  /faculty/performance:
+    post:
+      operationId: recordPerformance
+      tags: [faculty]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RecordPerformanceBody" }
+      responses:
+        "200":
+          description: Recorded
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+  /faculty/performance/report:
+    get:
+      operationId: getPerformanceReport
+      tags: [faculty]
+      parameters:
+        - name: period
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [weekly, monthly, semester]
+        - name: groupId
+          in: query
+          required: false
+          schema: { type: string }
+      responses:
+        "200":
+          description: Report
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PerformanceReport" }
+
+  # ===== STUDENT =====
+  /student/dashboard:
+    get:
+      operationId: getStudentDashboard
+      tags: [student]
+      responses:
+        "200":
+          description: Student dashboard
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/StudentDashboard" }
+  /student/group:
+    get:
+      operationId: getMyGroup
+      tags: [student]
+      responses:
+        "200":
+          description: My group (if any)
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - { $ref: "#/components/schemas/Group" }
+                  - { type: "null" }
+  /student/available-faculties:
+    get:
+      operationId: listAvailableFaculties
+      tags: [student]
+      responses:
+        "200":
+          description: Faculties with <3 groups assigned and their domains
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/FacultyWithDomains" }
+  /student/free-students:
+    get:
+      operationId: listFreeStudents
+      tags: [student]
+      responses:
+        "200":
+          description: Students not in any group (potential teammates)
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Student" }
+  /student/groups:
+    post:
+      operationId: createGroup
+      tags: [student]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateGroupBody" }
+      responses:
+        "200":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Group" }
+  /student/notifications:
+    get:
+      operationId: listStudentNotifications
+      tags: [student]
+      responses:
+        "200":
+          description: Notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Notification" }
+  /student/notifications/{notificationId}/read:
+    post:
+      operationId: markStudentNotificationRead
+      tags: [student]
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+  /student/attendance:
+    get:
+      operationId: getMyAttendance
+      tags: [student]
+      responses:
+        "200":
+          description: My attendance history
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AttendanceSummary" }
+  /student/performance:
+    get:
+      operationId: getMyPerformance
+      tags: [student]
+      responses:
+        "200":
+          description: My performance entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/PerformanceEntry" }
+
 components:
   schemas:
     HealthStatus:
       type: object
       properties:
-        status:
-          type: string
-      required:
-        - status
+        status: { type: string }
+      required: [status]
+    OkResponse:
+      type: object
+      properties:
+        ok: { type: boolean }
+      required: [ok]
 
+    Role:
+      type: string
+      enum: [student, faculty, admin]
+
+    LoginBody:
+      type: object
+      properties:
+        role: { $ref: "#/components/schemas/Role" }
+        identifier: { type: string, description: "Roll number for student, faculty ID for faculty, email for admin" }
+        password: { type: string }
+      required: [role, identifier, password]
+
+    AuthSession:
+      type: object
+      properties:
+        authenticated: { type: boolean }
+        userId: { type: string, nullable: true }
+        role: { type: string, nullable: true }
+        name: { type: string, nullable: true }
+        identifier: { type: string, nullable: true }
+        mustChangePassword: { type: boolean }
+      required: [authenticated, mustChangePassword]
+
+    ChangePasswordBody:
+      type: object
+      properties:
+        currentPassword: { type: string }
+        newPassword: { type: string }
+      required: [currentPassword, newPassword]
+
+    Student:
+      type: object
+      properties:
+        id: { type: string }
+        rollNumber: { type: string }
+        name: { type: string }
+        email: { type: string, nullable: true }
+        department: { type: string, nullable: true }
+        groupId: { type: string, nullable: true }
+        passwordChanged: { type: boolean }
+      required: [id, rollNumber, name, passwordChanged]
+
+    Faculty:
+      type: object
+      properties:
+        id: { type: string }
+        facultyId: { type: string }
+        name: { type: string }
+        email: { type: string, nullable: true }
+        department: { type: string, nullable: true }
+        groupCount: { type: integer }
+        passwordChanged: { type: boolean }
+      required: [id, facultyId, name, groupCount, passwordChanged]
+
+    FacultyWithDomains:
+      type: object
+      properties:
+        id: { type: string }
+        facultyId: { type: string }
+        name: { type: string }
+        department: { type: string, nullable: true }
+        groupCount: { type: integer }
+        domains:
+          type: array
+          items: { $ref: "#/components/schemas/Domain" }
+      required: [id, facultyId, name, groupCount, domains]
+
+    Admin:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        email: { type: string }
+        createdAt: { type: string }
+      required: [id, name, email, createdAt]
+
+    CreateAdminBody:
+      type: object
+      properties:
+        name: { type: string }
+        email: { type: string }
+        password: { type: string }
+      required: [name, email, password]
+
+    Domain:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        description: { type: string, nullable: true }
+        facultyId: { type: string }
+        facultyName: { type: string }
+      required: [id, name, facultyId, facultyName]
+
+    CreateDomainBody:
+      type: object
+      properties:
+        name: { type: string }
+        description: { type: string, nullable: true }
+      required: [name]
+
+    Group:
+      type: object
+      properties:
+        id: { type: string }
+        projectTitle: { type: string }
+        description: { type: string, nullable: true }
+        facultyId: { type: string }
+        facultyName: { type: string }
+        domainId: { type: string }
+        domainName: { type: string }
+        status: { type: string, enum: [pending, assigned] }
+        createdAt: { type: string }
+        members:
+          type: array
+          items: { $ref: "#/components/schemas/Student" }
+      required: [id, projectTitle, facultyId, facultyName, domainId, domainName, status, createdAt, members]
+
+    CreateGroupBody:
+      type: object
+      properties:
+        projectTitle: { type: string }
+        description: { type: string, nullable: true }
+        memberRollNumbers:
+          type: array
+          items: { type: string }
+        facultyId: { type: string }
+        domainId: { type: string }
+      required: [projectTitle, memberRollNumbers, facultyId, domainId]
+
+    SheetsConfig:
+      type: object
+      properties:
+        studentSheetUrl: { type: string, nullable: true }
+        facultySheetUrl: { type: string, nullable: true }
+        lastSyncedAt: { type: string, nullable: true }
+        lastSyncStatus: { type: string, nullable: true }
+        autoSyncEnabled: { type: boolean }
+      required: [autoSyncEnabled]
+
+    UpdateSheetsConfigBody:
+      type: object
+      properties:
+        studentSheetUrl: { type: string, nullable: true }
+        facultySheetUrl: { type: string, nullable: true }
+        autoSyncEnabled: { type: boolean, nullable: true }
+
+    SyncResult:
+      type: object
+      properties:
+        ok: { type: boolean }
+        studentsAdded: { type: integer }
+        studentsRemoved: { type: integer }
+        facultiesAdded: { type: integer }
+        facultiesRemoved: { type: integer }
+        message: { type: string }
+      required: [ok, studentsAdded, studentsRemoved, facultiesAdded, facultiesRemoved, message]
+
+    SecuritySettings:
+      type: object
+      properties:
+        sessionTimeoutMinutes: { type: integer }
+        minPasswordLength: { type: integer }
+        requirePasswordChange: { type: boolean }
+        allowStudentLogin: { type: boolean }
+        allowFacultyLogin: { type: boolean }
+      required: [sessionTimeoutMinutes, minPasswordLength, requirePasswordChange, allowStudentLogin, allowFacultyLogin]
+
+    UpdateSecuritySettingsBody:
+      type: object
+      properties:
+        sessionTimeoutMinutes: { type: integer, nullable: true }
+        minPasswordLength: { type: integer, nullable: true }
+        requirePasswordChange: { type: boolean, nullable: true }
+        allowStudentLogin: { type: boolean, nullable: true }
+        allowFacultyLogin: { type: boolean, nullable: true }
+
+    AuditLog:
+      type: object
+      properties:
+        id: { type: string }
+        actorRole: { type: string }
+        actorName: { type: string }
+        action: { type: string }
+        details: { type: string, nullable: true }
+        createdAt: { type: string }
+      required: [id, actorRole, actorName, action, createdAt]
+
+    MarkAttendanceBody:
+      type: object
+      properties:
+        date: { type: string }
+        entries:
+          type: array
+          items:
+            type: object
+            properties:
+              studentId: { type: string }
+              status: { type: string, enum: [present, absent, late] }
+            required: [studentId, status]
+      required: [date, entries]
+
+    AttendanceEntry:
+      type: object
+      properties:
+        id: { type: string }
+        studentId: { type: string }
+        studentName: { type: string }
+        rollNumber: { type: string }
+        date: { type: string }
+        status: { type: string }
+      required: [id, studentId, studentName, rollNumber, date, status]
+
+    AttendanceSummary:
+      type: object
+      properties:
+        totalSessions: { type: integer }
+        presentCount: { type: integer }
+        absentCount: { type: integer }
+        lateCount: { type: integer }
+        attendancePercent: { type: number }
+        entries:
+          type: array
+          items: { $ref: "#/components/schemas/AttendanceEntry" }
+      required: [totalSessions, presentCount, absentCount, lateCount, attendancePercent, entries]
+
+    SendEmailBody:
+      type: object
+      properties:
+        recipientStudentIds:
+          type: array
+          items: { type: string }
+        subject: { type: string }
+        body: { type: string }
+      required: [recipientStudentIds, subject, body]
+
+    EmailLog:
+      type: object
+      properties:
+        id: { type: string }
+        subject: { type: string }
+        body: { type: string }
+        recipientCount: { type: integer }
+        recipientNames:
+          type: array
+          items: { type: string }
+        sentAt: { type: string }
+      required: [id, subject, body, recipientCount, recipientNames, sentAt]
+
+    Notification:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        body: { type: string }
+        read: { type: boolean }
+        createdAt: { type: string }
+      required: [id, title, body, read, createdAt]
+
+    RecordPerformanceBody:
+      type: object
+      properties:
+        studentId: { type: string }
+        score: { type: number }
+        notes: { type: string, nullable: true }
+        period: { type: string, enum: [weekly, monthly, semester] }
+      required: [studentId, score, period]
+
+    PerformanceEntry:
+      type: object
+      properties:
+        id: { type: string }
+        studentId: { type: string }
+        studentName: { type: string }
+        rollNumber: { type: string }
+        score: { type: number }
+        notes: { type: string, nullable: true }
+        period: { type: string }
+        recordedAt: { type: string }
+      required: [id, studentId, studentName, rollNumber, score, period, recordedAt]
+
+    PerformanceReport:
+      type: object
+      properties:
+        period: { type: string }
+        averageScore: { type: number }
+        topPerformer:
+          type: object
+          nullable: true
+          properties:
+            studentId: { type: string }
+            name: { type: string }
+            rollNumber: { type: string }
+            score: { type: number }
+          required: [studentId, name, rollNumber, score]
+        entries:
+          type: array
+          items: { $ref: "#/components/schemas/PerformanceEntry" }
+        attendanceByStudent:
+          type: array
+          items:
+            type: object
+            properties:
+              studentId: { type: string }
+              name: { type: string }
+              rollNumber: { type: string }
+              attendancePercent: { type: number }
+            required: [studentId, name, rollNumber, attendancePercent]
+      required: [period, averageScore, entries, attendanceByStudent]
+
+    AdminDashboard:
+      type: object
+      properties:
+        studentCount: { type: integer }
+        facultyCount: { type: integer }
+        adminCount: { type: integer }
+        groupCount: { type: integer }
+        domainsCount: { type: integer }
+        attendanceRate: { type: number }
+        lastSyncedAt: { type: string, nullable: true }
+        lastSyncStatus: { type: string, nullable: true }
+        recentActivity:
+          type: array
+          items: { $ref: "#/components/schemas/AuditLog" }
+        groupsByDomain:
+          type: array
+          items:
+            type: object
+            properties:
+              domain: { type: string }
+              count: { type: integer }
+            required: [domain, count]
+      required: [studentCount, facultyCount, adminCount, groupCount, domainsCount, attendanceRate, recentActivity, groupsByDomain]
+
+    FacultyDashboard:
+      type: object
+      properties:
+        groupCount: { type: integer }
+        groupCapacity: { type: integer }
+        studentCount: { type: integer }
+        domainsCount: { type: integer }
+        attendanceRate: { type: number }
+        unreadNotifications: { type: integer }
+        recentEmails:
+          type: array
+          items: { $ref: "#/components/schemas/EmailLog" }
+        upcomingGroups:
+          type: array
+          items: { $ref: "#/components/schemas/Group" }
+      required: [groupCount, groupCapacity, studentCount, domainsCount, attendanceRate, unreadNotifications, recentEmails, upcomingGroups]
+
+    StudentDashboard:
+      type: object
+      properties:
+        hasGroup: { type: boolean }
+        group:
+          oneOf:
+            - { $ref: "#/components/schemas/Group" }
+            - { type: "null" }
+        attendancePercent: { type: number }
+        averagePerformance: { type: number }
+        unreadNotifications: { type: integer }
+        recentNotifications:
+          type: array
+          items: { $ref: "#/components/schemas/Notification" }
+      required: [hasGroup, attendancePercent, averagePerformance, unreadNotifications, recentNotifications]

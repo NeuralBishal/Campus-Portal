@@ -1,27 +1,54 @@
-# Workspace
+# Campus Portal
 
-## Overview
-
-pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
+A unified academic operations console for students, faculty, and admins.
 
 ## Stack
 
-- **Monorepo tool**: pnpm workspaces
-- **Node.js version**: 24
-- **Package manager**: pnpm
-- **TypeScript version**: 5.9
-- **API framework**: Express 5
-- **Database**: PostgreSQL + Drizzle ORM
-- **Validation**: Zod (`zod/v4`), `drizzle-zod`
-- **API codegen**: Orval (from OpenAPI spec)
-- **Build**: esbuild (CJS bundle)
+- **Monorepo** managed by pnpm (see `pnpm-workspace.yaml`).
+- **Backend** — `artifacts/api-server` (Express + TypeScript + Drizzle ORM + Postgres).
+- **Frontend** — `artifacts/campus-portal` (React + Vite + wouter + TanStack Query + shadcn-ui + Tailwind + Recharts + Framer Motion).
+- **API contract** — OpenAPI 3 spec at `lib/api-spec/openapi.yaml`. Codegen produces:
+  - `lib/api-zod` — request/response zod schemas + types.
+  - `lib/api-client-react` — Orval-generated TanStack Query hooks (`useGetMe`, `useLogin`, `useCreateGroup`, etc.).
+- **Database** — Postgres via `DATABASE_URL`. Schema lives in `lib/db/src/schema.ts`. Use `pnpm --filter @workspace/db run push` to apply.
 
-## Key Commands
+## Roles & flow
 
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- `pnpm --filter @workspace/api-server run dev` — run API server locally
+Three login surfaces — `/login/student`, `/login/faculty`, `/login/admin`.
 
-See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.
+- **Admin** (`/admin/*`) — uploads two **publicly shared** Google Sheets URLs (one for students, one for faculty); the server auto-syncs every 5 minutes (CSV export pulled via `?format=csv&gid=…`). Admin also manages other admins, security policy, and reviews the audit log. Admin sees all faculties, students, and groups.
+- **Faculty** (`/faculty/*`) — creates project domains, accepts groups (capacity 3 groups per faculty), marks attendance per session, sends emails (delivered as student notifications), records performance scores (weekly / monthly / semester reports with averages, top performer, attendance correlation chart).
+- **Student** (`/student/*`) — forms a single group of up to 4 members under one chosen faculty + domain; sees attendance, performance trajectory, and notifications.
+
+## Auth & sessions
+
+- Cookie name `campus_session` (HttpOnly, SameSite=None, Secure). Lifetime is configured by **AdminSecurity** (`sessionTimeoutMinutes`, default 120).
+- First-time users (`mustChangePassword=true`) are forced to `/change-password` by the `AuthGuard`.
+- Initial passwords come from the Google Sheet's `initialPassword` column. Default seed admin is `admin@campus.edu / admin123`. Seeded faculty use their faculty ID as the password (`FAC101`, `FAC102`, `FAC103`); seeded students use their roll number (`CS2101`, `CS2102`, …).
+
+## Important conventions
+
+- Never shadow `inArray` with raw `sql\`… = ANY(${arr})\`` — drizzle-pg flattens arrays into a single string parameter and the query crashes. Use `inArray(col, arr)` from `drizzle-orm`.
+- Frontend mutation pattern:
+  ```ts
+  const m = useUpdateSheetsConfig();
+  m.mutate({ data: { studentSheetUrl, facultySheetUrl } }, {
+    onSuccess: () => qc.invalidateQueries({ queryKey: getGetSheetsConfigQueryKey() }),
+    onError: (err: any) => toast.error(err?.message),
+  });
+  ```
+- Frontend reads `useGetMe()` with no options — passing `{ query: { retry: false } }` collides with the orval typing because TanStack v5 requires `queryKey`. Default queries already have `retry: false` (set on the global QueryClient).
+- Lucide icons everywhere. **No emojis.**
+- Reusable building blocks: `@/components/PageHeader`, `@/components/EmptyState`, `@/components/AuthGuard`, `@/components/layout/{AuthLayout, DashboardLayout}`.
+
+## Workflows
+
+- `artifacts/api-server: API Server` — `pnpm --filter @workspace/api-server run dev` (binds `PORT`, default 8080).
+- `artifacts/campus-portal: web` — `pnpm --filter @workspace/campus-portal run dev` (Vite, binds `PORT`).
+- `artifacts/mockup-sandbox: Component Preview Server` — only used during design exploration.
+
+## Recent fixes
+
+- Replaced every `sql\`col = ANY(${arr})\`` in the API routes with `inArray(col, arr)` (Drizzle helper). This was crashing the faculty dashboard, faculty groups list, attendance lookup, performance reports, and admin groups list.
+- Removed `query: { retry: false }` overrides from `useGetMe` calls (typing conflict with the orval-generated hook in TanStack v5).
+- Removed the unused `Role` import from `@workspace/api-zod` in the Login page.
