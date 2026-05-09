@@ -3,7 +3,7 @@ import { useLocation, Link } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useLogin, useGetMe } from "@workspace/api-client-react";
+import { useLogin, useGetMe, useGetRegistrationStatus } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -34,6 +34,9 @@ export default function Login({ role }: { role: "student" | "faculty" | "admin" 
   const loginMutation = useLogin();
   
   const { data: user, isLoading: isLoadingUser } = useGetMe();
+  const { data: regStatus } = useGetRegistrationStatus({
+    query: { enabled: role === "admin", queryKey: ["registrationStatus"] },
+  });
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -138,7 +141,7 @@ export default function Login({ role }: { role: "student" | "faculty" | "admin" 
                     "Sign In"
                   )}
                 </Button>
-                {role === "admin" && (
+                {role === "admin" && regStatus?.allowed && (
                   <p className="text-sm text-center text-muted-foreground">
                     No account yet?{" "}
                     <Link href="/register/admin" className="text-primary font-medium hover:underline">

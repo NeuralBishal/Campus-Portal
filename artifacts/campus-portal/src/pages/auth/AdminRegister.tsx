@@ -2,7 +2,7 @@ import { useLocation, Link } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useRegisterAdmin, useGetMe } from "@workspace/api-client-react";
+import { useRegisterAdmin, useGetMe, useGetRegistrationStatus } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -34,6 +34,9 @@ export default function AdminRegister() {
   const registerMutation = useRegisterAdmin();
 
   const { data: user, isLoading: isLoadingUser } = useGetMe();
+  const { data: regStatus, isLoading: isLoadingStatus } = useGetRegistrationStatus({
+    query: { queryKey: ["registrationStatus"] },
+  });
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
@@ -43,6 +46,28 @@ export default function AdminRegister() {
   if (!isLoadingUser && user?.authenticated) {
     setLocation(`/${user.role}`);
     return null;
+  }
+
+  if (!isLoadingStatus && regStatus && !regStatus.allowed) {
+    return (
+      <AuthLayout>
+        <div className="w-full max-w-md mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <Card className="border-border shadow-lg">
+            <CardHeader className="space-y-2 text-center pb-6">
+              <CardTitle className="text-3xl font-serif">Registration Closed</CardTitle>
+              <CardDescription className="text-base">
+                An administrator already exists. New admins can only be created by an existing admin from inside the dashboard.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Link href="/login/admin">
+                <Button className="w-full" size="lg">Go to Admin Login</Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+      </AuthLayout>
+    );
   }
 
   const onSubmit = (data: RegisterFormValues) => {

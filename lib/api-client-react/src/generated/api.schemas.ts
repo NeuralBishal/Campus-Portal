@@ -9,6 +9,10 @@ export interface HealthStatus {
   status: string;
 }
 
+export interface RegistrationStatus {
+  allowed: boolean;
+}
+
 export interface OkResponse {
   ok: boolean;
 }

@@ -46,6 +46,10 @@ export const GetMeResponse = zod.object({
   mustChangePassword: zod.boolean(),
 });
 
+export const GetRegistrationStatusResponse = zod.object({
+  allowed: zod.boolean(),
+});
+
 export const RegisterAdminBody = zod.object({
   name: zod.string(),
   email: zod.string(),

@@ -62,6 +62,16 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/AuthSession" }
+  /auth/registration-status:
+    get:
+      operationId: getRegistrationStatus
+      tags: [auth]
+      responses:
+        "200":
+          description: Whether public admin registration is currently allowed
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RegistrationStatus" }
   /auth/register-admin:
     post:
       operationId: registerAdmin
@@ -570,6 +580,12 @@ components:
       properties:
         status: { type: string }
       required: [status]
+    RegistrationStatus:
+      type: object
+      properties:
+        allowed: { type: boolean }
+      required: [allowed]
+
     OkResponse:
       type: object
       properties:

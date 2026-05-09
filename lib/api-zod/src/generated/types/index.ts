@@ -40,6 +40,7 @@ export * from "./performanceReportAttendanceByStudentItem";
 export * from "./performanceReportTopPerformer";
 export * from "./recordPerformanceBody";
 export * from "./recordPerformanceBodyPeriod";
+export * from "./registrationStatus";
 export * from "./role";
 export * from "./securitySettings";
 export * from "./sendEmailBody";

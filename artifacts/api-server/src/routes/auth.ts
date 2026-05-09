@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq } from "drizzle-orm";
+import { eq, count } from "drizzle-orm";
 import {
   db,
   adminsTable,
@@ -101,7 +101,18 @@ router.post("/auth/login", async (req, res): Promise<void> => {
   });
 });
 
+router.get("/auth/registration-status", async (_req, res): Promise<void> => {
+  const [row] = await db.select({ c: count() }).from(adminsTable);
+  res.json({ allowed: (row?.c ?? 0) === 0 });
+});
+
 router.post("/auth/register-admin", async (req, res): Promise<void> => {
+  const [adminCountRow] = await db.select({ c: count() }).from(adminsTable);
+  if ((adminCountRow?.c ?? 0) > 0) {
+    res.status(403).json({ error: "Admin registration is disabled. An administrator already exists." });
+    return;
+  }
+
   const parsed = Schemas.CreateAdminBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
