@@ -3,7 +3,7 @@ import { useLocation, Link } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useLogin, useGetMe, useGetRegistrationStatus } from "@workspace/api-client-react";
+import { useLogin, useGetMe, useGetRegistrationStatus, getGetMeQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -65,6 +65,7 @@ export default function Login({ role }: { role: "student" | "faculty" | "admin" 
       }
     }, {
       onSuccess: (res) => {
+        queryClient.setQueryData(getGetMeQueryKey(), res);
         queryClient.invalidateQueries();
         if (res.mustChangePassword) {
           setLocation("/change-password");

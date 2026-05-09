@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { useGetMe } from "@workspace/api-client-react";
+import { useGetMe, getGetMeQueryKey } from "@workspace/api-client-react";
 
 const schema = z.object({
   currentPassword: z.string().min(1, "Required"),
@@ -33,6 +33,9 @@ export default function ChangePassword() {
     mutation.mutate({ data }, {
       onSuccess: () => {
         toast.success("Password changed successfully");
+        if (user) {
+          queryClient.setQueryData(getGetMeQueryKey(), { ...user, mustChangePassword: false });
+        }
         queryClient.invalidateQueries();
         setLocation(user?.role ? `/${user.role}` : "/");
       },

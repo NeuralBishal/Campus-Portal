@@ -2,7 +2,7 @@ import { useLocation, Link } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useRegisterAdmin, useGetMe, useGetRegistrationStatus } from "@workspace/api-client-react";
+import { useRegisterAdmin, useGetMe, useGetRegistrationStatus, getGetMeQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -75,6 +75,7 @@ export default function AdminRegister() {
       { data },
       {
         onSuccess: (res) => {
+          queryClient.setQueryData(getGetMeQueryKey(), res);
           queryClient.invalidateQueries();
           toast.success("Admin account created. Welcome!");
           setLocation(`/${res.role}`);
