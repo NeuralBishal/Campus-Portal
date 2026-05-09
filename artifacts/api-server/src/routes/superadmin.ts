@@ -10,6 +10,7 @@ import { hashPassword } from "../lib/passwords";
 import { createSession, destroySession, SESSION_COOKIE } from "../lib/sessions";
 import { recordAudit } from "../lib/audit";
 import { requireRole } from "../middlewares/auth";
+import { loginRateLimiter, registerRateLimiter } from "../middlewares/rateLimit";
 import {
   buildAuthenticationOptions,
   buildRegistrationOptions,
@@ -36,7 +37,7 @@ function setSessionCookie(res: any, sess: { id: string; expiresAt: Date }): void
   });
 }
 
-router.post("/superadmin/register/options", async (req, res): Promise<void> => {
+router.post("/superadmin/register/options", registerRateLimiter, async (req, res): Promise<void> => {
   const { name, email, phone } = (req.body ?? {}) as { name?: string; email?: string; phone?: string };
   if (!name || !email || !phone) {
     res.status(400).json({ error: "Name, email, and phone are required." });
@@ -140,7 +141,7 @@ router.get("/superadmin/login/attempts", async (req, res): Promise<void> => {
   });
 });
 
-router.post("/superadmin/login/options", async (req, res): Promise<void> => {
+router.post("/superadmin/login/options", loginRateLimiter, async (req, res): Promise<void> => {
   const email = String((req.body?.email ?? "")).trim().toLowerCase();
   if (!email) {
     res.status(400).json({ error: "Email is required." });
@@ -163,7 +164,7 @@ router.post("/superadmin/login/options", async (req, res): Promise<void> => {
   res.json({ options });
 });
 
-router.post("/superadmin/login/verify", async (req, res): Promise<void> => {
+router.post("/superadmin/login/verify", loginRateLimiter, async (req, res): Promise<void> => {
   const { assertion, email } = (req.body ?? {}) as { assertion?: any; email?: string };
   const cleanEmail = String(email ?? "").trim().toLowerCase();
   if (!assertion || !cleanEmail) {
@@ -230,7 +231,7 @@ router.post("/superadmin/login/verify", async (req, res): Promise<void> => {
   res.json({ authenticated: true, userId: sa.id, role: "superadmin", name: sa.name, identifier: sa.email, mustChangePassword: false });
 });
 
-router.post("/superadmin/login/fallback", async (req, res): Promise<void> => {
+router.post("/superadmin/login/fallback", loginRateLimiter, async (req, res): Promise<void> => {
   const { email, phone } = (req.body ?? {}) as { email?: string; phone?: string };
   const cleanEmail = String(email ?? "").trim().toLowerCase();
   const cleanPhone = String(phone ?? "").trim();

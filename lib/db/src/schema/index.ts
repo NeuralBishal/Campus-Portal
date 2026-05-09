@@ -31,7 +31,10 @@ export const studentsTable = pgTable("students", {
   passwordChanged: boolean("password_changed").notNull().default(false),
   groupId: text("group_id"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (t) => ({
+  byGroup: index("students_group_idx").on(t.groupId),
+  byDept: index("students_department_idx").on(t.department),
+}));
 
 export const domainsTable = pgTable("domains", {
   id: text("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -39,7 +42,9 @@ export const domainsTable = pgTable("domains", {
   name: text("name").notNull(),
   description: text("description"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (t) => ({
+  byFaculty: index("domains_faculty_idx").on(t.facultyId),
+}));
 
 export const groupsTable = pgTable("groups", {
   id: text("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -49,7 +54,11 @@ export const groupsTable = pgTable("groups", {
   domainId: text("domain_id").notNull().references(() => domainsTable.id, { onDelete: "cascade" }),
   status: text("status").notNull().default("assigned"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (t) => ({
+  byFaculty: index("groups_faculty_idx").on(t.facultyId),
+  byDomain: index("groups_domain_idx").on(t.domainId),
+  byCreated: index("groups_created_idx").on(t.createdAt),
+}));
 
 export const attendanceTable = pgTable("attendance", {
   id: text("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -71,7 +80,10 @@ export const performanceTable = pgTable("performance_entries", {
   notes: text("notes"),
   period: text("period").notNull(),
   recordedAt: timestamp("recorded_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (t) => ({
+  byStudent: index("performance_student_idx").on(t.studentId, t.recordedAt),
+  byFaculty: index("performance_faculty_idx").on(t.facultyId, t.recordedAt),
+}));
 
 export const emailLogsTable = pgTable("email_logs", {
   id: text("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -81,7 +93,9 @@ export const emailLogsTable = pgTable("email_logs", {
   recipientStudentIds: jsonb("recipient_student_ids").notNull().$type<string[]>(),
   recipientNames: jsonb("recipient_names").notNull().$type<string[]>(),
   sentAt: timestamp("sent_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (t) => ({
+  byFaculty: index("email_logs_faculty_idx").on(t.facultyId, t.sentAt),
+}));
 
 export const notificationsTable = pgTable("notifications", {
   id: text("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -92,7 +106,7 @@ export const notificationsTable = pgTable("notifications", {
   read: boolean("read").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => ({
-  byRecipient: index("notifications_recipient_idx").on(t.recipientType, t.recipientId),
+  byRecipient: index("notifications_recipient_idx").on(t.recipientType, t.recipientId, t.createdAt),
 }));
 
 export const auditLogsTable = pgTable("audit_logs", {
@@ -103,7 +117,10 @@ export const auditLogsTable = pgTable("audit_logs", {
   action: text("action").notNull(),
   details: text("details"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (t) => ({
+  byCreated: index("audit_logs_created_idx").on(t.createdAt),
+  byActor: index("audit_logs_actor_idx").on(t.actorId),
+}));
 
 export const sheetsConfigTable = pgTable("sheets_config", {
   id: text("id").primaryKey().default("singleton"),
@@ -150,6 +167,7 @@ export const sessionsTable = pgTable("sessions", {
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
 }, (t) => ({
   byUser: index("sessions_user_idx").on(t.userId),
+  byExpires: index("sessions_expires_idx").on(t.expiresAt),
 }));
 
 export type Admin = typeof adminsTable.$inferSelect;

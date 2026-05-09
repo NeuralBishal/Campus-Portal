@@ -12,10 +12,11 @@ import { hashPassword, verifyPassword } from "../lib/passwords";
 import { createSession, destroySession, SESSION_COOKIE } from "../lib/sessions";
 import { recordAudit } from "../lib/audit";
 import { requireAuth } from "../middlewares/auth";
+import { loginRateLimiter, registerRateLimiter } from "../middlewares/rateLimit";
 
 const router: IRouter = Router();
 
-router.post("/auth/login", async (req, res): Promise<void> => {
+router.post("/auth/login", loginRateLimiter, async (req, res): Promise<void> => {
   const parsed = Schemas.LoginBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -106,7 +107,7 @@ router.get("/auth/registration-status", async (_req, res): Promise<void> => {
   res.json({ allowed: (row?.c ?? 0) === 0 });
 });
 
-router.post("/auth/register-admin", async (req, res): Promise<void> => {
+router.post("/auth/register-admin", registerRateLimiter, async (req, res): Promise<void> => {
   const [adminCountRow] = await db.select({ c: count() }).from(adminsTable);
   if ((adminCountRow?.c ?? 0) > 0) {
     res.status(403).json({ error: "Admin registration is disabled. An administrator already exists." });

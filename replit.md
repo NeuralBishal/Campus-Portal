@@ -56,6 +56,13 @@ Three login surfaces — `/login/student`, `/login/faculty`, `/login/admin`.
 - Tables: `superadminsTable`, `webauthnCredentialsTable` (publicKey stored base64). Sessions reuse `campus_session` cookie with role `"superadmin"`.
 - Superadmin endpoints are called via raw `fetch` (`src/lib/superadminApi.ts`); only `Role` enum was extended in OpenAPI to keep `useGetMe` typing correct. WebAuthn options are too deeply nested for orval typing to be useful.
 
+## Scale hardening
+
+- **Indexes** added on `students.groupId`, `students.department`, `domains.facultyId`, `groups.facultyId/domainId/createdAt`, `performance(studentId,recordedAt)`, `performance(facultyId,recordedAt)`, `email_logs(facultyId,sentAt)`, `notifications(recipientType,recipientId,createdAt)`, `audit_logs.createdAt`, `audit_logs.actorId`, `sessions.expiresAt`. Apply with `pnpm --filter @workspace/db run push`.
+- **Login rate limiting** via `artifacts/api-server/src/middlewares/rateLimit.ts` (in-memory token buckets, `.unref()` cleanup). 20 attempts / 15min per IP+identifier on `/auth/login`, `/superadmin/login/options`, `/superadmin/login/fallback`. 5 attempts / hour per IP on `/auth/register-admin` and `/superadmin/register/options`. Returns 429 with `Retry-After`.
+- **Session purge** runs `purgeExpiredSessions()` on startup and every 30 min via `setInterval(...).unref()` in `artifacts/api-server/src/index.ts`.
+- **Pagination on big admin lists** is intentionally NOT done yet — would require changing the OpenAPI spec + every admin table component. Server still hard-caps `audit-logs` at 200 and the other lists are bounded by college roster size (a few thousand rows is fine post-indexes).
+
 ## Recent fixes
 
 - Replaced every `sql\`col = ANY(${arr})\`` in the API routes with `inArray(col, arr)` (Drizzle helper). This was crashing the faculty dashboard, faculty groups list, attendance lookup, performance reports, and admin groups list.

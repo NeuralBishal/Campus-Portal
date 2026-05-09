@@ -2,6 +2,7 @@ import app from "./app";
 import { logger } from "./lib/logger";
 import { ensureSeed } from "./lib/seed";
 import { startBackgroundSync } from "./lib/sheets";
+import { purgeExpiredSessions } from "./lib/sessions";
 
 const rawPort = process.env["PORT"];
 
@@ -28,6 +29,10 @@ app.listen(port, async (err) => {
   try {
     await ensureSeed();
     startBackgroundSync();
+    purgeExpiredSessions().catch((e) => logger.warn({ err: e }, "Initial session purge failed"));
+    setInterval(() => {
+      purgeExpiredSessions().catch((e) => logger.warn({ err: e }, "Session purge failed"));
+    }, 30 * 60_000).unref();
   } catch (e) {
     logger.error({ err: e }, "Startup tasks failed");
   }
