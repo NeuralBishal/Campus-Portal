@@ -57,57 +57,63 @@ function Router() {
         <AuthGuard><ChangePassword /></AuthGuard>
       </Route>
 
-      <Route path="/admin" nest>
-        <AuthGuard allowedRoles={["admin"]}>
-          <DashboardLayout>
-            <Switch>
-              <Route path="/" component={AdminDashboard} />
-              <Route path="/sheets" component={AdminSheets} />
-              <Route path="/students" component={AdminStudents} />
-              <Route path="/faculties" component={AdminFaculties} />
-              <Route path="/groups" component={AdminGroups} />
-              <Route path="/admins" component={AdminAdmins} />
-              <Route path="/security" component={AdminSecurity} />
-              <Route path="/settings" component={SettingsPage} />
-              <Route component={NotFound} />
-            </Switch>
-          </DashboardLayout>
-        </AuthGuard>
-      </Route>
+      {(["/admin", "/admin/:rest*"] as const).map((p) => (
+        <Route key={p} path={p}>
+          <AuthGuard allowedRoles={["admin"]}>
+            <DashboardLayout>
+              <Switch>
+                <Route path="/admin" component={AdminDashboard} />
+                <Route path="/admin/sheets" component={AdminSheets} />
+                <Route path="/admin/students" component={AdminStudents} />
+                <Route path="/admin/faculties" component={AdminFaculties} />
+                <Route path="/admin/groups" component={AdminGroups} />
+                <Route path="/admin/admins" component={AdminAdmins} />
+                <Route path="/admin/security" component={AdminSecurity} />
+                <Route path="/admin/settings" component={SettingsPage} />
+                <Route component={NotFound} />
+              </Switch>
+            </DashboardLayout>
+          </AuthGuard>
+        </Route>
+      ))}
 
-      <Route path="/faculty" nest>
-        <AuthGuard allowedRoles={["faculty"]}>
-          <DashboardLayout>
-            <Switch>
-              <Route path="/" component={FacultyDashboard} />
-              <Route path="/groups" component={FacultyGroups} />
-              <Route path="/domains" component={FacultyDomains} />
-              <Route path="/attendance" component={FacultyAttendance} />
-              <Route path="/email" component={FacultyEmail} />
-              <Route path="/performance" component={FacultyPerformance} />
-              <Route path="/notifications" component={FacultyNotifications} />
-              <Route path="/settings" component={SettingsPage} />
-              <Route component={NotFound} />
-            </Switch>
-          </DashboardLayout>
-        </AuthGuard>
-      </Route>
+      {(["/faculty", "/faculty/:rest*"] as const).map((p) => (
+        <Route key={p} path={p}>
+          <AuthGuard allowedRoles={["faculty"]}>
+            <DashboardLayout>
+              <Switch>
+                <Route path="/faculty" component={FacultyDashboard} />
+                <Route path="/faculty/groups" component={FacultyGroups} />
+                <Route path="/faculty/domains" component={FacultyDomains} />
+                <Route path="/faculty/attendance" component={FacultyAttendance} />
+                <Route path="/faculty/email" component={FacultyEmail} />
+                <Route path="/faculty/performance" component={FacultyPerformance} />
+                <Route path="/faculty/notifications" component={FacultyNotifications} />
+                <Route path="/faculty/settings" component={SettingsPage} />
+                <Route component={NotFound} />
+              </Switch>
+            </DashboardLayout>
+          </AuthGuard>
+        </Route>
+      ))}
 
-      <Route path="/student" nest>
-        <AuthGuard allowedRoles={["student"]}>
-          <DashboardLayout>
-            <Switch>
-              <Route path="/" component={StudentDashboard} />
-              <Route path="/group" component={StudentGroup} />
-              <Route path="/notifications" component={StudentNotifications} />
-              <Route path="/attendance" component={StudentAttendance} />
-              <Route path="/performance" component={StudentPerformance} />
-              <Route path="/settings" component={SettingsPage} />
-              <Route component={NotFound} />
-            </Switch>
-          </DashboardLayout>
-        </AuthGuard>
-      </Route>
+      {(["/student", "/student/:rest*"] as const).map((p) => (
+        <Route key={p} path={p}>
+          <AuthGuard allowedRoles={["student"]}>
+            <DashboardLayout>
+              <Switch>
+                <Route path="/student" component={StudentDashboard} />
+                <Route path="/student/group" component={StudentGroup} />
+                <Route path="/student/notifications" component={StudentNotifications} />
+                <Route path="/student/attendance" component={StudentAttendance} />
+                <Route path="/student/performance" component={StudentPerformance} />
+                <Route path="/student/settings" component={SettingsPage} />
+                <Route component={NotFound} />
+              </Switch>
+            </DashboardLayout>
+          </AuthGuard>
+        </Route>
+      ))}
 
       <Route component={NotFound} />
     </Switch>
