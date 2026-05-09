@@ -276,6 +276,35 @@
     animation: gradient-shift 22s ease infinite;
   }
 
+  .auth-gradient-student {
+    background: linear-gradient(135deg,
+      hsl(200 80% 95%), hsl(190 75% 88%), hsl(220 70% 92%),
+      hsl(170 60% 90%), hsl(210 75% 94%), hsl(200 80% 95%));
+    background-size: 300% 300%;
+    animation: gradient-shift 22s ease infinite;
+  }
+  .auth-gradient-faculty {
+    background: linear-gradient(135deg,
+      hsl(40 90% 94%), hsl(25 85% 88%), hsl(50 80% 92%),
+      hsl(15 75% 90%), hsl(35 90% 94%), hsl(40 90% 94%));
+    background-size: 300% 300%;
+    animation: gradient-shift 22s ease infinite;
+  }
+  .auth-gradient-admin {
+    background: linear-gradient(135deg,
+      hsl(340 75% 94%), hsl(280 60% 92%), hsl(320 70% 92%),
+      hsl(260 55% 93%), hsl(350 70% 94%), hsl(340 75% 94%));
+    background-size: 300% 300%;
+    animation: gradient-shift 22s ease infinite;
+  }
+  .auth-gradient-default {
+    background: linear-gradient(135deg,
+      hsl(40 60% 96%), hsl(220 50% 92%), hsl(260 45% 93%),
+      hsl(180 40% 92%), hsl(40 60% 96%));
+    background-size: 300% 300%;
+    animation: gradient-shift 22s ease infinite;
+  }
+
   @keyframes shimmer {
     0% { background-position: -200% 0; }
     100% { background-position: 200% 0; }
