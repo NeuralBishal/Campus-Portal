@@ -62,6 +62,21 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/AuthSession" }
+  /auth/register-admin:
+    post:
+      operationId: registerAdmin
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateAdminBody" }
+      responses:
+        "200":
+          description: Registered and signed in
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthSession" }
   /auth/change-password:
     post:
       operationId: changePassword

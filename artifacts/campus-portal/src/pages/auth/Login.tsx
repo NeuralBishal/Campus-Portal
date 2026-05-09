@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -138,6 +138,14 @@ export default function Login({ role }: { role: "student" | "faculty" | "admin" 
                     "Sign In"
                   )}
                 </Button>
+                {role === "admin" && (
+                  <p className="text-sm text-center text-muted-foreground">
+                    No account yet?{" "}
+                    <Link href="/register/admin" className="text-primary font-medium hover:underline">
+                      Register a new admin
+                    </Link>
+                  </p>
+                )}
               </form>
             </Form>
           </CardContent>

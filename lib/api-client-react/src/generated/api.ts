@@ -346,6 +346,86 @@ export function useGetMe<
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
+export const getRegisterAdminUrl = () => {
+  return `/api/auth/register-admin`;
+};
+
+export const registerAdmin = async (
+  createAdminBody: CreateAdminBody,
+  options?: RequestInit,
+): Promise<AuthSession> => {
+  return customFetch<AuthSession>(getRegisterAdminUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createAdminBody),
+  });
+};
+
+export const getRegisterAdminMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof registerAdmin>>,
+    TError,
+    { data: BodyType<CreateAdminBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof registerAdmin>>,
+  TError,
+  { data: BodyType<CreateAdminBody> },
+  TContext
+> => {
+  const mutationKey = ["registerAdmin"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof registerAdmin>>,
+    { data: BodyType<CreateAdminBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return registerAdmin(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type RegisterAdminMutationResult = NonNullable<
+  Awaited<ReturnType<typeof registerAdmin>>
+>;
+export type RegisterAdminMutationBody = BodyType<CreateAdminBody>;
+export type RegisterAdminMutationError = ErrorType<unknown>;
+
+export const useRegisterAdmin = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof registerAdmin>>,
+    TError,
+    { data: BodyType<CreateAdminBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof registerAdmin>>,
+  TError,
+  { data: BodyType<CreateAdminBody> },
+  TContext
+> => {
+  return useMutation(getRegisterAdminMutationOptions(options));
+};
+
 export const getChangePasswordUrl = () => {
   return `/api/auth/change-password`;
 };

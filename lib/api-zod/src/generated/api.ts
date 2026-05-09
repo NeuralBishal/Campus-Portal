@@ -46,6 +46,21 @@ export const GetMeResponse = zod.object({
   mustChangePassword: zod.boolean(),
 });
 
+export const RegisterAdminBody = zod.object({
+  name: zod.string(),
+  email: zod.string(),
+  password: zod.string(),
+});
+
+export const RegisterAdminResponse = zod.object({
+  authenticated: zod.boolean(),
+  userId: zod.string().nullish(),
+  role: zod.string().nullish(),
+  name: zod.string().nullish(),
+  identifier: zod.string().nullish(),
+  mustChangePassword: zod.boolean(),
+});
+
 export const ChangePasswordBody = zod.object({
   currentPassword: zod.string(),
   newPassword: zod.string(),

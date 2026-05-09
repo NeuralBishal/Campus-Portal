@@ -101,6 +101,62 @@ router.post("/auth/login", async (req, res): Promise<void> => {
   });
 });
 
+router.post("/auth/register-admin", async (req, res): Promise<void> => {
+  const parsed = Schemas.CreateAdminBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+  const { name, email, password } = parsed.data;
+  const cleanEmail = email.trim().toLowerCase();
+
+  const [settings] = await db.select().from(securitySettingsTable).limit(1);
+  const minLen = settings?.minPasswordLength ?? 6;
+  if (password.length < minLen) {
+    res.status(400).json({ error: `Password must be at least ${minLen} characters.` });
+    return;
+  }
+
+  const [existing] = await db.select().from(adminsTable).where(eq(adminsTable.email, cleanEmail)).limit(1);
+  if (existing) {
+    res.status(400).json({ error: "An admin with that email already exists." });
+    return;
+  }
+
+  const [a] = await db.insert(adminsTable).values({
+    name: name.trim(),
+    email: cleanEmail,
+    passwordHash: hashPassword(password),
+    passwordChanged: true,
+  }).returning();
+
+  await recordAudit({
+    actorRole: "admin",
+    actorId: a!.id,
+    actorName: a!.name,
+    action: "register_admin",
+    details: `Self-registered admin ${a!.email}`,
+  });
+
+  const sess = await createSession(a!.id, "admin");
+  res.cookie(SESSION_COOKIE, sess.id, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: false,
+    expires: sess.expiresAt,
+    path: "/",
+  });
+
+  res.json({
+    authenticated: true,
+    userId: a!.id,
+    role: "admin",
+    name: a!.name,
+    identifier: a!.email,
+    mustChangePassword: false,
+  });
+});
+
 router.post("/auth/logout", async (req, res): Promise<void> => {
   const sid = req.cookies?.[SESSION_COOKIE] as string | undefined;
   await destroySession(sid);

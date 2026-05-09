@@ -7,6 +7,7 @@ import NotFound from "@/pages/not-found";
 import Landing from "@/pages/Landing";
 import Login from "@/pages/auth/Login";
 import ChangePassword from "@/pages/auth/ChangePassword";
+import AdminRegister from "@/pages/auth/AdminRegister";
 import { AuthGuard } from "@/components/AuthGuard";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import SettingsPage from "@/pages/SettingsPage";
@@ -44,6 +45,7 @@ function Router() {
       <Route path="/login/student">{() => <Login role="student" />}</Route>
       <Route path="/login/faculty">{() => <Login role="faculty" />}</Route>
       <Route path="/login/admin">{() => <Login role="admin" />}</Route>
+      <Route path="/register/admin" component={AdminRegister} />
 
       <Route path="/change-password">
         <AuthGuard><ChangePassword /></AuthGuard>
