@@ -51,7 +51,7 @@ const features = [
 
 export default function Landing() {
   return (
-    <div className="min-h-screen relative overflow-hidden bg-background flex flex-col">
+    <div className="min-h-screen relative overflow-hidden animate-gradient-bg flex flex-col">
       {/* Decorative animated blobs */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute -top-32 -left-32 w-[28rem] h-[28rem] rounded-full bg-primary/20 blur-3xl animate-blob" />

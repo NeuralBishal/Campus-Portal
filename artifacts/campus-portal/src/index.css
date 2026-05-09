@@ -245,6 +245,37 @@
   .animation-delay-2000 { animation-delay: 2s; }
   .animation-delay-4000 { animation-delay: 4s; }
 
+  @keyframes gradient-shift {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  .animate-gradient-bg {
+    background: linear-gradient(
+      135deg,
+      hsl(40 60% 96%),
+      hsl(35 70% 90%),
+      hsl(260 55% 92%),
+      hsl(220 65% 92%),
+      hsl(330 55% 93%),
+      hsl(40 60% 96%)
+    );
+    background-size: 300% 300%;
+    animation: gradient-shift 22s ease infinite;
+  }
+  .dark .animate-gradient-bg {
+    background: linear-gradient(
+      135deg,
+      hsl(240 50% 8%),
+      hsl(260 45% 12%),
+      hsl(220 50% 10%),
+      hsl(290 40% 13%),
+      hsl(240 50% 8%)
+    );
+    background-size: 300% 300%;
+    animation: gradient-shift 22s ease infinite;
+  }
+
   @keyframes shimmer {
     0% { background-position: -200% 0; }
     100% { background-position: 200% 0; }
