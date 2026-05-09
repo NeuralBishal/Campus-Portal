@@ -88,13 +88,14 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
             key={item.href} 
             href={item.href}
             onClick={onClick}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${
-              isActive 
-                ? "bg-primary/10 text-primary" 
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            className={`group/nav flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all relative ${
+              isActive
+                ? "bg-gradient-to-r from-primary/15 to-primary/5 text-primary shadow-sm"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground hover:translate-x-0.5"
             }`}
           >
-            <item.icon className={`w-5 h-5 ${isActive ? "text-primary" : "text-muted-foreground"}`} />
+            {isActive && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full" />}
+            <item.icon className={`w-5 h-5 transition-transform ${isActive ? "text-primary" : "text-muted-foreground group-hover/nav:scale-110"}`} />
             {item.title}
           </Link>
         );
@@ -103,11 +104,12 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
   );
 
   return (
-    <div className="min-h-[100dvh] flex flex-col md:flex-row bg-muted/30">
+    <div className="min-h-[100dvh] flex flex-col md:flex-row bg-gradient-to-br from-muted/40 via-background to-accent/20 relative">
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 opacity-50 bg-[radial-gradient(circle_at_1px_1px,_hsl(var(--foreground)/0.04)_1px,_transparent_0)] [background-size:32px_32px]" />
       {/* Mobile Header */}
-      <header className="md:hidden flex items-center justify-between px-4 h-16 border-b bg-card">
+      <header className="md:hidden flex items-center justify-between px-4 h-16 border-b bg-card/80 backdrop-blur-md">
         <Link href="/" className="flex items-center gap-2">
-          <div className="bg-primary text-primary-foreground p-1 rounded-md">
+          <div className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground p-1.5 rounded-md shadow-sm">
             <GraduationCap className="w-5 h-5" />
           </div>
           <span className="font-serif font-bold text-lg">Campus Portal</span>
@@ -147,25 +149,25 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
       </header>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex w-64 flex-col border-r bg-card h-screen sticky top-0">
+      <aside className="hidden md:flex w-64 flex-col border-r bg-card/80 backdrop-blur-md h-screen sticky top-0 shadow-sm">
         <div className="p-6">
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="bg-primary text-primary-foreground p-1.5 rounded-md group-hover:scale-105 transition-transform">
+            <div className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground p-2 rounded-lg shadow-md group-hover:scale-105 transition-transform">
               <GraduationCap className="w-6 h-6" />
             </div>
             <span className="font-serif font-bold text-xl tracking-tight">Campus Portal</span>
           </Link>
         </div>
-        
+
         <div className="px-4 pb-4">
-          <div className="flex items-center gap-3 px-3 py-3 bg-muted rounded-lg">
-            <Avatar className="w-9 h-9 border border-border">
-              <AvatarFallback className="bg-primary/10 text-primary font-medium">
+          <div className="flex items-center gap-3 px-3 py-3 bg-gradient-to-br from-primary/5 to-accent/30 rounded-xl border border-border/60">
+            <Avatar className="w-10 h-10 border-2 border-background shadow-sm">
+              <AvatarFallback className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground font-semibold">
                 {user?.name?.charAt(0).toUpperCase() || "U"}
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col overflow-hidden">
-              <span className="text-sm font-medium truncate">{user?.name}</span>
+              <span className="text-sm font-semibold truncate">{user?.name}</span>
               <span className="text-xs text-muted-foreground capitalize">{user?.role}</span>
             </div>
           </div>
