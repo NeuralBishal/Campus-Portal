@@ -6,7 +6,7 @@ services:
     repo: https://github.com/NeuralBishal/Campus-Portal
     branch: main
     rootDir: artifacts/api-server
-    buildCommand: npm run build
+    buildCommand: pnpm install --no-frozen-lockfile --filter @workspace/api-server... && pnpm --filter @workspace/api-server build
     startCommand: node --enable-source-maps dist/index.mjs
     envVars:
       - key: NODE_ENV
@@ -19,8 +19,6 @@ services:
           property: connectionString
       - key: SESSION_SECRET
         generateValue: true
-      - key: CORS_ORIGIN
-        value: https://campus-portal-ui.onrender.com
     healthCheckPath: /api/healthz
     autoDeploy: true
 
@@ -30,7 +28,7 @@ services:
     repo: https://github.com/NeuralBishal/Campus-Portal
     branch: main
     rootDir: artifacts/campus-portal
-    buildCommand: npm install && npm run build
+    buildCommand: pnpm install --no-frozen-lockfile --filter @workspace/campus-portal... && pnpm --filter @workspace/campus-portal build
     publishPath: dist
     envVars:
       - key: VITE_API_URL
