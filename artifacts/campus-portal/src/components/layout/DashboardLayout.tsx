@@ -103,9 +103,25 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
     </nav>
   );
 
+  const dashGradient =
+    user?.role === "student" ? "dash-gradient-student" :
+    user?.role === "faculty" ? "dash-gradient-faculty" :
+    user?.role === "admin" ? "dash-gradient-admin" :
+    "dash-gradient-default";
+
+  const blobAccent =
+    user?.role === "student" ? { a: "bg-sky-300/20", b: "bg-cyan-200/20" } :
+    user?.role === "faculty" ? { a: "bg-amber-300/25", b: "bg-orange-200/20" } :
+    user?.role === "admin" ? { a: "bg-rose-300/20", b: "bg-violet-300/20" } :
+    { a: "bg-primary/10", b: "bg-accent/30" };
+
   return (
-    <div className="min-h-[100dvh] flex flex-col md:flex-row bg-gradient-to-br from-muted/40 via-background to-accent/20 relative">
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 opacity-50 bg-[radial-gradient(circle_at_1px_1px,_hsl(var(--foreground)/0.04)_1px,_transparent_0)] [background-size:32px_32px]" />
+    <div className={`min-h-[100dvh] flex flex-col md:flex-row relative ${dashGradient}`}>
+      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden -z-10">
+        <div className={`absolute -top-32 -right-32 w-[26rem] h-[26rem] rounded-full blur-3xl animate-blob ${blobAccent.a}`} />
+        <div className={`absolute top-1/2 -left-32 w-[24rem] h-[24rem] rounded-full blur-3xl animate-blob animation-delay-2000 ${blobAccent.b}`} />
+        <div className="absolute inset-0 opacity-60 bg-[radial-gradient(circle_at_1px_1px,_hsl(var(--foreground)/0.04)_1px,_transparent_0)] [background-size:32px_32px]" />
+      </div>
       {/* Mobile Header */}
       <header className="md:hidden flex items-center justify-between px-4 h-16 border-b bg-card/80 backdrop-blur-md">
         <Link href="/" className="flex items-center gap-2">
