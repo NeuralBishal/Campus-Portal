@@ -1,0 +1,45 @@
+services:
+  # Backend API Service
+  - type: web
+    name: campus-portal-api
+    runtime: node
+    repo: https://github.com/NeuralBishal/Campus-Portal
+    branch: main
+    rootDir: artifacts/api-server
+    buildCommand: npm run build
+    startCommand: node --enable-source-maps dist/index.mjs
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: campus-portal-db
+          property: connectionString
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        value: https://campus-portal-ui.onrender.com
+    healthCheckPath: /api/healthz
+    autoDeploy: true
+
+  # Frontend Static Site
+  - type: static
+    name: campus-portal-ui
+    repo: https://github.com/NeuralBishal/Campus-Portal
+    branch: main
+    rootDir: artifacts/campus-portal
+    buildCommand: npm install && npm run build
+    publishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://campus-portal-api.onrender.com
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=3600
+
+databases:
+  - name: campus-portal-db
+    plan: free

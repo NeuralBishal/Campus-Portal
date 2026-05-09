@@ -5,9 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "export NODE_ENV=development && pnpm run build && pnpm run start",
-    "build": "node ./build.mjs",
+    "build": "node build.mjs",
     "start": "node --enable-source-maps ./dist/index.mjs",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "build:render": "npm run build",
+    "start:render": "node --enable-source-maps ./dist/index.mjs",
+    "clean": "rm -rf dist"
   },
   "dependencies": {
     "@simplewebauthn/server": "^13.3.0",
