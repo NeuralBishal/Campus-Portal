@@ -12,4 +12,5 @@ export const Role = {
   student: "student",
   faculty: "faculty",
   admin: "admin",
+  superadmin: "superadmin",
 } as const;

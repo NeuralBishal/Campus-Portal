@@ -47,6 +47,15 @@ Three login surfaces — `/login/student`, `/login/faculty`, `/login/admin`.
 - `artifacts/campus-portal: web` — `pnpm --filter @workspace/campus-portal run dev` (Vite, binds `PORT`).
 - `artifacts/mockup-sandbox: Component Preview Server` — only used during design exploration.
 
+## Superadmin Portal
+
+- Hidden shield button (top-right of `/`) opens `/superadmin`.
+- Registration & login use **WebAuthn** (`@simplewebauthn/server` on the API, `@simplewebauthn/browser` on the client) with `userVerification: "required"` so only biometric/PIN authenticators are accepted.
+- After **5** failed fingerprint attempts (counter is in-memory, keyed by email), an email + phone fallback unlocks (no OTP — straight credential match against `superadminsTable`).
+- Dashboard at `/superadmin/dashboard` lets a superadmin upload an Excel/CSV of admins (`name`, `email`, optional `password`), create admins manually, and delete admins.
+- Tables: `superadminsTable`, `webauthnCredentialsTable` (publicKey stored base64). Sessions reuse `campus_session` cookie with role `"superadmin"`.
+- Superadmin endpoints are called via raw `fetch` (`src/lib/superadminApi.ts`); only `Role` enum was extended in OpenAPI to keep `useGetMe` typing correct. WebAuthn options are too deeply nested for orval typing to be useful.
+
 ## Recent fixes
 
 - Replaced every `sql\`col = ANY(${arr})\`` in the API routes with `inArray(col, arr)` (Drizzle helper). This was crashing the faculty dashboard, faculty groups list, attendance lookup, performance reports, and admin groups list.

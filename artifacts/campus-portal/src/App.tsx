@@ -34,6 +34,9 @@ import StudentNotifications from "@/pages/student/StudentNotifications";
 import StudentAttendance from "@/pages/student/StudentAttendance";
 import StudentPerformance from "@/pages/student/StudentPerformance";
 
+import SuperadminPortal from "@/pages/superadmin/SuperadminPortal";
+import SuperadminDashboard from "@/pages/superadmin/SuperadminDashboard";
+
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: false, refetchOnWindowFocus: false } },
 });
@@ -46,6 +49,9 @@ function Router() {
       <Route path="/login/faculty">{() => <Login role="faculty" />}</Route>
       <Route path="/login/admin">{() => <Login role="admin" />}</Route>
       <Route path="/register/admin" component={AdminRegister} />
+
+      <Route path="/superadmin" component={SuperadminPortal} />
+      <Route path="/superadmin/dashboard" component={SuperadminDashboard} />
 
       <Route path="/change-password">
         <AuthGuard><ChangePassword /></AuthGuard>

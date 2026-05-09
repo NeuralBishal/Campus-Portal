@@ -13,6 +13,12 @@ export default function Landing() {
             </div>
             <span className="font-serif font-bold text-xl tracking-tight text-foreground">Campus Portal</span>
           </div>
+          <Link href="/superadmin" title="Superadmin Portal" data-testid="link-superadmin">
+            <Button variant="ghost" size="icon" className="rounded-full hover:bg-primary/10 hover:text-primary">
+              <Shield className="w-5 h-5" />
+              <span className="sr-only">Superadmin Portal</span>
+            </Button>
+          </Link>
         </div>
       </header>
 

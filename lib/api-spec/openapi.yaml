@@ -594,7 +594,7 @@ components:
 
     Role:
       type: string
-      enum: [student, faculty, admin]
+      enum: [student, faculty, admin, superadmin]
 
     LoginBody:
       type: object

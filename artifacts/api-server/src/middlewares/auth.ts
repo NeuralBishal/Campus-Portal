@@ -5,12 +5,15 @@ import {
   adminsTable,
   facultiesTable,
   studentsTable,
+  superadminsTable,
 } from "@workspace/db";
 import { getSession, SESSION_COOKIE } from "../lib/sessions";
 
+export type AuthRole = "student" | "faculty" | "admin" | "superadmin";
+
 export type AuthUser = {
   id: string;
-  role: "student" | "faculty" | "admin";
+  role: AuthRole;
   name: string;
   identifier: string;
   passwordChanged: boolean;
@@ -54,6 +57,17 @@ export async function loadUser(req: Request, _res: Response, next: NextFunction)
         passwordChanged: f.passwordChanged,
       };
     }
+  } else if (sess.role === "superadmin") {
+    const [sa] = await db.select().from(superadminsTable).where(eq(superadminsTable.id, sess.userId)).limit(1);
+    if (sa) {
+      req.user = {
+        id: sa.id,
+        role: "superadmin",
+        name: sa.name,
+        identifier: sa.email,
+        passwordChanged: true,
+      };
+    }
   } else if (sess.role === "student") {
     const [s] = await db.select().from(studentsTable).where(eq(studentsTable.id, sess.userId)).limit(1);
     if (s) {
@@ -77,7 +91,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
   next();
 }
 
-export function requireRole(role: "student" | "faculty" | "admin") {
+export function requireRole(role: AuthRole) {
   return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
       res.status(401).json({ error: "Not authenticated" });

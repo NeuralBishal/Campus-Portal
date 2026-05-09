@@ -123,6 +123,25 @@ export const securitySettingsTable = pgTable("security_settings", {
   allowFacultyLogin: boolean("allow_faculty_login").notNull().default(true),
 });
 
+export const superadminsTable = pgTable("superadmins", {
+  id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  phone: text("phone").notNull().unique(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const webauthnCredentialsTable = pgTable("webauthn_credentials", {
+  id: text("id").primaryKey(),
+  superadminId: text("superadmin_id").notNull().references(() => superadminsTable.id, { onDelete: "cascade" }),
+  publicKey: text("public_key").notNull(),
+  counter: integer("counter").notNull().default(0),
+  transports: jsonb("transports").$type<string[]>(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => ({
+  bySuperadmin: index("webauthn_credentials_superadmin_idx").on(t.superadminId),
+}));
+
 export const sessionsTable = pgTable("sessions", {
   id: text("id").primaryKey(),
   userId: text("user_id").notNull(),
@@ -146,3 +165,5 @@ export type AuditLog = typeof auditLogsTable.$inferSelect;
 export type SheetsConfig = typeof sheetsConfigTable.$inferSelect;
 export type SecuritySettings = typeof securitySettingsTable.$inferSelect;
 export type Session = typeof sessionsTable.$inferSelect;
+export type Superadmin = typeof superadminsTable.$inferSelect;
+export type WebauthnCredential = typeof webauthnCredentialsTable.$inferSelect;
