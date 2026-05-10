@@ -2,7 +2,6 @@ import type { CookieOptions } from "express";
 
 function isCrossSite(): boolean {
   if (process.env["COOKIE_CROSS_SITE"] === "true") return true;
-  if (process.env["NODE_ENV"] === "production") return true;
   if ((process.env["ALLOWED_ORIGINS"] ?? "").trim() !== "") return true;
   return false;
 }

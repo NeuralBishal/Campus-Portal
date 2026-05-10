@@ -63,6 +63,27 @@ Three login surfaces — `/login/student`, `/login/faculty`, `/login/admin`.
 - **Session purge** runs `purgeExpiredSessions()` on startup and every 30 min via `setInterval(...).unref()` in `artifacts/api-server/src/index.ts`.
 - **Pagination on big admin lists** is intentionally NOT done yet — would require changing the OpenAPI spec + every admin table component. Server still hard-caps `audit-logs` at 200 and the other lists are bounded by college roster size (a few thousand rows is fine post-indexes).
 
+## Single-service deploy (Render, Railway, Fly, etc.) — RECOMMENDED
+
+The Express backend now also serves the built React frontend from disk, so the whole app runs as **one web service** with no cross-origin/cookie pain. This is the recommended deploy mode.
+
+- `artifacts/api-server/src/lib/staticFiles.ts` mounts `STATIC_DIR` (or auto-detects `artifacts/campus-portal/dist`). Adds SPA fallback: any non-`/api` GET returns `index.html`. No-op when the dir is missing (so local dev with separate Vite still works).
+- `app.set("trust proxy", true)` so rate limiter and IP logs respect Render's proxy headers.
+- `render.yaml` at repo root is a one-click Render Blueprint:
+  - **Build**: `pnpm install && build campus-portal && build api-server`
+  - **Start**: `pnpm --filter @workspace/api-server run start`
+  - **Health check**: `/api/healthz`
+  - **Env**: `NODE_ENV=production`, `STATIC_DIR=artifacts/campus-portal/dist`, auto-generated `SESSION_SECRET`, manual `DATABASE_URL`.
+- Cookies stay `SameSite=Lax` in single-origin mode. `isCrossSite()` in `lib/cookies.ts` only flips to `SameSite=None; Secure` when `ALLOWED_ORIGINS` is set or `COOKIE_CROSS_SITE=true` is set — not just because `NODE_ENV=production`. This avoids the CSRF risk of permissive `SameSite=None` cookies on a same-origin deploy.
+- CORS in production rejects all cross-origin requests unless `ALLOWED_ORIGINS` is set. Same-origin requests (no `Origin` header) always pass.
+- Frontend leaves `VITE_API_URL` unset → uses relative `/api/*` → hits the same origin.
+
+**To deploy on Render via Blueprint:**
+1. Push repo to GitHub
+2. Render Dashboard → New → Blueprint → connect repo
+3. Add the `DATABASE_URL` secret (use Render Postgres or Neon)
+4. Deploy. Health check at `/api/healthz` confirms it's up.
+
 ## Cross-origin / external hosting (Vercel etc.)
 
 The frontend can be deployed to Vercel/Netlify with the API hosted elsewhere (Render, Railway, Replit Autoscale).
