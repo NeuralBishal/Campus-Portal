@@ -1,0 +1,26 @@
+==> Deploying...
+==> Setting WEB_CONCURRENCY=1 by default, based on available CPUs in the instance
+==> Running 'pnpm --filter @workspace/api-server run start'
+! Corepack is about to download https://registry.npmjs.org/pnpm/-/pnpm-10.26.1.tgz
+> @workspace/api-server@0.0.0 start /opt/render/project/src/artifacts/api-server
+> node --enable-source-maps ./dist/index.mjs
+{"level":30,"time":1778386303961,"pid":81,"hostname":"srv-d8006rd0lvsc7388rp7g-hibernate-fc4794744-cg2zb","staticDir":"/opt/render/project/src/artifacts/campus-portal/dist","msg":"Serving frontend from static directory"}
+(node:81) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
+To prepare for this change:
+- If you want the current behavior, explicitly use 'sslmode=verify-full'
+- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"level":30,"time":1778386303964,"pid":81,"hostname":"srv-d8006rd0lvsc7388rp7g-hibernate-fc4794744-cg2zb","port":10000,"nodeEnv":"production","allowedOrigins":"(unset, allowing all)","cookieMode":"same-site (SameSite=Lax)","msg":"Server listening"}
+{"level":30,"time":1778386304270,"pid":81,"hostname":"srv-d8006rd0lvsc7388rp7g-hibernate-fc4794744-cg2zb","req":{"id":1,"method":"HEAD","url":"/"},"res":{"statusCode":200},"responseTime":5,"msg":"request completed"}
+{"level":50,"time":1778386304836,"pid":81,"hostname":"srv-d8006rd0lvsc7388rp7g-hibernate-fc4794744-cg2zb","err":{"type":"_DrizzleQueryError","message":"Failed query: select count(*) from \"security_settings\"\nparams: : relation \"security_settings\" does not exist","stack":"Error: Failed query: select count(*) from \"security_settings\"\nparams: \n    at NodePgPreparedQuery.queryWithCache (/opt/render/project/src/node_modules/.pnpm/drizzle-orm@0.45.2_@types+pg@8.18.0_pg@8.20.0/node_modules/src/pg-core/session.ts:73:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async <anonymous> (/opt/render/project/src/node_modules/.pnpm/drizzle-orm@0.45.2_@types+pg@8.18.0_pg@8.20.0/node_modules/src/node-postgres/session.ts:154:19)\n    at async ensureSeed (/opt/render/project/src/artifacts/api-server/src/lib/seed.ts:21:22)\n    at async Server.<anonymous> (/opt/render/project/src/artifacts/api-server/src/index.ts:39:5)\ncaused by: error: relation \"security_settings\" does not exist\n    at <anonymous> (/opt/render/project/src/node_modules/.pnpm/pg-pool@3.13.0_pg@8.20.0/node_modules/pg-pool/index.js:45:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async <anonymous> (/opt/render/project/src/node_modules/.pnpm/drizzle-orm@0.45.2_@types+pg@8.18.0_pg@8.20.0/node_modules/src/node-postgres/session.ts:161:13)\n    at async NodePgPreparedQuery.queryWithCache (/opt/render/project/src/node_modules/.pnpm/drizzle-orm@0.45.2_@types+pg@8.18.0_pg@8.20.0/node_modules/src/pg-core/session.ts:71:12)\n    at async <anonymous> (/opt/render/project/src/node_modules/.pnpm/drizzle-orm@0.45.2_@types+pg@8.18.0_pg@8.20.0/node_modules/src/node-postgres/session.ts:154:19)\n    at async ensureSeed (/opt/render/project/src/artifacts/api-server/src/lib/seed.ts:21:22)\n    at async Server.<anonymous> (/opt/render/project/src/artifacts/api-server/src/index.ts:39:5)","query":"select count(*) from \"security_settings\"","params":[]},"msg":"Startup tasks failed"}
+==> Your service is live 🎉
+==> 
+Menu
+==> ///////////////////////////////////////////////////////////
+==> 
+==> Available at your primary URL https://campus-portal3.onrender.com
+==> 
+==> ///////////////////////////////////////////////////////////
+{"level":30,"time":1778386307411,"pid":81,"hostname":"srv-d8006rd0lvsc7388rp7g-hibernate-fc4794744-cg2zb","req":{"id":2,"method":"GET","url":"/"},"res":{"statusCode":200},"responseTime":4,"msg":"request completed"}
