@@ -3,6 +3,7 @@ import { logger } from "./lib/logger";
 import { ensureSeed } from "./lib/seed";
 import { startBackgroundSync } from "./lib/sheets";
 import { purgeExpiredSessions } from "./lib/sessions";
+import { describeCookieMode } from "./lib/cookies";
 
 const rawPort = process.env["PORT"];
 
@@ -24,7 +25,15 @@ app.listen(port, async (err) => {
     process.exit(1);
   }
 
-  logger.info({ port }, "Server listening");
+  logger.info(
+    {
+      port,
+      nodeEnv: process.env["NODE_ENV"] ?? "(unset)",
+      allowedOrigins: process.env["ALLOWED_ORIGINS"] ?? "(unset, allowing all)",
+      cookieMode: describeCookieMode(),
+    },
+    "Server listening",
+  );
 
   try {
     await ensureSeed();
