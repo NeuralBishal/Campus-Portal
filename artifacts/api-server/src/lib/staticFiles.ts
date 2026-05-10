@@ -41,6 +41,13 @@ export function mountStaticFrontend(app: Express): void {
   app.use((req: Request, res: Response, next: NextFunction) => {
     if (req.method !== "GET" && req.method !== "HEAD") return next();
     if (req.path.startsWith("/api")) return next();
+    // Only serve the SPA shell for actual navigation requests. If the request
+    // looks like a static asset (under /assets/, or has a file extension) we
+    // must NOT return index.html — that causes "MIME type text/html" errors
+    // for stale browser caches referencing old asset hashes.
+    if (req.path.startsWith("/assets/")) return next();
+    if (/\.[a-zA-Z0-9]{2,5}$/.test(req.path)) return next();
+    if (!req.accepts("html")) return next();
     res.sendFile(indexHtml, (err) => {
       if (err) next(err);
     });
