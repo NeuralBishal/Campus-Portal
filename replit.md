@@ -69,20 +69,28 @@ The Express backend now also serves the built React frontend from disk, so the w
 
 - `artifacts/api-server/src/lib/staticFiles.ts` mounts `STATIC_DIR` (or auto-detects `artifacts/campus-portal/dist`). Adds SPA fallback: any non-`/api` GET returns `index.html`. No-op when the dir is missing (so local dev with separate Vite still works).
 - `app.set("trust proxy", true)` so rate limiter and IP logs respect Render's proxy headers.
-- `render.yaml` at repo root is a one-click Render Blueprint:
-  - **Build**: `pnpm install && build campus-portal && build api-server`
-  - **Start**: `pnpm --filter @workspace/api-server run start`
-  - **Health check**: `/api/healthz`
-  - **Env**: `NODE_ENV=production`, `STATIC_DIR=artifacts/campus-portal/dist`, auto-generated `SESSION_SECRET`, manual `DATABASE_URL`.
 - Cookies stay `SameSite=Lax` in single-origin mode. `isCrossSite()` in `lib/cookies.ts` only flips to `SameSite=None; Secure` when `ALLOWED_ORIGINS` is set or `COOKIE_CROSS_SITE=true` is set — not just because `NODE_ENV=production`. This avoids the CSRF risk of permissive `SameSite=None` cookies on a same-origin deploy.
 - CORS in production rejects all cross-origin requests unless `ALLOWED_ORIGINS` is set. Same-origin requests (no `Origin` header) always pass.
 - Frontend leaves `VITE_API_URL` unset → uses relative `/api/*` → hits the same origin.
 
-**To deploy on Render via Blueprint:**
-1. Push repo to GitHub
-2. Render Dashboard → New → Blueprint → connect repo
-3. Add the `DATABASE_URL` secret (use Render Postgres or Neon)
-4. Deploy. Health check at `/api/healthz` confirms it's up.
+**To deploy on Render manually (no Blueprint):**
+1. Push repo to GitHub.
+2. Render Dashboard → **New +** → **Web Service** → connect the repo.
+3. Settings:
+   - **Root Directory**: leave empty (repo root).
+   - **Runtime**: Node.
+   - **Build Command**:
+     ```
+     corepack enable && corepack prepare pnpm@latest --activate && pnpm install --frozen-lockfile=false && pnpm --filter @workspace/campus-portal run build && pnpm --filter @workspace/api-server run build
+     ```
+   - **Start Command**: `pnpm --filter @workspace/api-server run start`
+   - **Health Check Path**: `/api/healthz`
+4. **Environment** tab — add:
+   - `NODE_ENV` = `production`
+   - `STATIC_DIR` = `artifacts/campus-portal/dist`
+   - `SESSION_SECRET` = (click *Generate*)
+   - `DATABASE_URL` = your Postgres URL (Render Postgres, Neon, Supabase, etc.)
+5. Create the service. First build takes a few minutes; once health check passes the app is live at `https://<your-service>.onrender.com`.
 
 ## Cross-origin / external hosting (Vercel etc.)
 
