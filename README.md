@@ -9,6 +9,18 @@
 
 Campus Portal replaces scattered spreadsheets, group chats, and email threads with a centralized, role-based platform designed for real-world academic workloads.
 
+
+#### 🚀 Live Demo
+
+The Campus Portal is live and fully functional at:
+https://campus-hub-bishalmajumdar5.replit.app
+
+### Test Credentials
+- **Admin:** admin@campus.edu / admin123
+- **Faculty:** (Use faculty ID from seeded data)
+- **Student:** (Use roll number from seeded data)
+
+> ⚠️ **Note:** The demo is hosted on Replit's free tier. The service may spin down after 15 minutes of inactivity. If the site doesn't load immediately, please wait 30 seconds for it to wake up.
 ## ✨ Key Features
 
 ### 🎓 For Students
