@@ -1,0 +1,8 @@
+{
+  "dialect": "postgresql",
+  "schema": "../../lib/db/src/schema",
+  "out": "./drizzle",
+  "dbCredentials": {
+    "url": "postgresql://cmp_db_vxkz_user:q56E5Q1bAjAivNFDBDYfPZeJjiPSdbmb@dpg-d7vp9pr7uimc73evial0-a.oregon-postgres.render.com/cmp_db_vxkz?sslmode=require"
+  }
+}

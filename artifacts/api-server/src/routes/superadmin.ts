@@ -8,6 +8,7 @@ import {
 } from "@workspace/db";
 import { hashPassword } from "../lib/passwords";
 import { createSession, destroySession, SESSION_COOKIE } from "../lib/sessions";
+import { sessionCookieOptions, clearSessionCookieOptions } from "../lib/cookies";
 import { recordAudit } from "../lib/audit";
 import { requireRole } from "../middlewares/auth";
 import { loginRateLimiter, registerRateLimiter } from "../middlewares/rateLimit";
@@ -28,13 +29,7 @@ import { randomUUID } from "node:crypto";
 const router: IRouter = Router();
 
 function setSessionCookie(res: any, sess: { id: string; expiresAt: Date }): void {
-  res.cookie(SESSION_COOKIE, sess.id, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: false,
-    expires: sess.expiresAt,
-    path: "/",
-  });
+  res.cookie(SESSION_COOKIE, sess.id, sessionCookieOptions(sess.expiresAt));
 }
 
 router.post("/superadmin/register/options", registerRateLimiter, async (req, res): Promise<void> => {
@@ -264,7 +259,7 @@ router.post("/superadmin/login/fallback", loginRateLimiter, async (req, res): Pr
 router.post("/superadmin/logout", async (req, res): Promise<void> => {
   const sid = req.cookies?.[SESSION_COOKIE] as string | undefined;
   await destroySession(sid);
-  res.clearCookie(SESSION_COOKIE, { path: "/" });
+  res.clearCookie(SESSION_COOKIE, clearSessionCookieOptions());
   res.json({ ok: true });
 });
 

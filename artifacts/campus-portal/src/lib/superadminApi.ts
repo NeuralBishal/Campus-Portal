@@ -1,4 +1,6 @@
-const BASE = `${import.meta.env.BASE_URL ?? "/"}api`.replace(/\/+/g, "/");
+const REMOTE = (import.meta.env.VITE_API_URL ?? "").trim().replace(/\/+$/, "");
+const LOCAL = `${import.meta.env.BASE_URL ?? "/"}api`.replace(/\/+/g, "/");
+const BASE = REMOTE ? `${REMOTE}/api` : LOCAL;
 
 async function call<T = any>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {

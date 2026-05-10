@@ -10,6 +10,7 @@ import {
 import { Schemas } from "@workspace/api-zod";
 import { hashPassword, verifyPassword } from "../lib/passwords";
 import { createSession, destroySession, SESSION_COOKIE } from "../lib/sessions";
+import { sessionCookieOptions, clearSessionCookieOptions } from "../lib/cookies";
 import { recordAudit } from "../lib/audit";
 import { requireAuth } from "../middlewares/auth";
 import { loginRateLimiter, registerRateLimiter } from "../middlewares/rateLimit";
@@ -76,13 +77,7 @@ router.post("/auth/login", loginRateLimiter, async (req, res): Promise<void> => 
   }
 
   const sess = await createSession(userId, role);
-  res.cookie(SESSION_COOKIE, sess.id, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: false,
-    expires: sess.expiresAt,
-    path: "/",
-  });
+  res.cookie(SESSION_COOKIE, sess.id, sessionCookieOptions(sess.expiresAt));
 
   await recordAudit({
     actorRole: role,
@@ -151,13 +146,7 @@ router.post("/auth/register-admin", registerRateLimiter, async (req, res): Promi
   });
 
   const sess = await createSession(a!.id, "admin");
-  res.cookie(SESSION_COOKIE, sess.id, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: false,
-    expires: sess.expiresAt,
-    path: "/",
-  });
+  res.cookie(SESSION_COOKIE, sess.id, sessionCookieOptions(sess.expiresAt));
 
   res.json({
     authenticated: true,
@@ -172,7 +161,7 @@ router.post("/auth/register-admin", registerRateLimiter, async (req, res): Promi
 router.post("/auth/logout", async (req, res): Promise<void> => {
   const sid = req.cookies?.[SESSION_COOKIE] as string | undefined;
   await destroySession(sid);
-  res.clearCookie(SESSION_COOKIE, { path: "/" });
+  res.clearCookie(SESSION_COOKIE, clearSessionCookieOptions());
   res.json({ ok: true });
 });
 

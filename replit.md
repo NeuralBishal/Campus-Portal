@@ -63,6 +63,16 @@ Three login surfaces — `/login/student`, `/login/faculty`, `/login/admin`.
 - **Session purge** runs `purgeExpiredSessions()` on startup and every 30 min via `setInterval(...).unref()` in `artifacts/api-server/src/index.ts`.
 - **Pagination on big admin lists** is intentionally NOT done yet — would require changing the OpenAPI spec + every admin table component. Server still hard-caps `audit-logs` at 200 and the other lists are bounded by college roster size (a few thousand rows is fine post-indexes).
 
+## Cross-origin / external hosting (Vercel etc.)
+
+The frontend can be deployed to Vercel/Netlify with the API hosted elsewhere (Render, Railway, Replit Autoscale).
+
+- **Frontend → API URL**: set `VITE_API_URL=https://your-api.example.com` in the Vercel project. When unset, the client uses relative `/api` (works on Replit where everything is behind one proxy). Wired in `artifacts/campus-portal/src/lib/initApi.ts` (orval hooks via `setBaseUrl`) and `artifacts/campus-portal/src/lib/superadminApi.ts` (raw fetch).
+- **Credentials**: `lib/api-client-react/src/custom-fetch.ts` defaults `credentials: "include"` so cookies cross sites. Run `pnpm run typecheck:libs` after editing.
+- **Cookies**: `artifacts/api-server/src/lib/cookies.ts` returns `SameSite=None; Secure` when `NODE_ENV=production`, otherwise `SameSite=Lax; Secure=false` (so dev works over plain http on Replit). All session set/clear sites use these helpers — never hand-roll cookie options.
+- **CORS**: `artifacts/api-server/src/app.ts` reads `ALLOWED_ORIGINS` (comma-separated). Empty = reflect any origin (dev). For production set e.g. `ALLOWED_ORIGINS=https://campus-portal.vercel.app`.
+- **Vercel build** (`artifacts/campus-portal/vercel.json`): pnpm monorepo build from artifact root: `cd ../.. && pnpm install --frozen-lockfile=false && pnpm --filter @workspace/campus-portal build`. Output `dist`. SPA rewrite `/(.*) -> /index.html` so wouter routes work on hard reload. In Vercel UI set **Root Directory** to `artifacts/campus-portal`.
+
 ## Recent fixes
 
 - Replaced every `sql\`col = ANY(${arr})\`` in the API routes with `inArray(col, arr)` (Drizzle helper). This was crashing the faculty dashboard, faculty groups list, attendance lookup, performance reports, and admin groups list.

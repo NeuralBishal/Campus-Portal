@@ -28,6 +28,10 @@ localPort = 3002
 externalPort = 3002
 
 [[ports]]
+localPort = 5173
+externalPort = 5173
+
+[[ports]]
 localPort = 8080
 externalPort = 80
 
@@ -38,3 +42,6 @@ externalPort = 8081
 [[ports]]
 localPort = 20687
 externalPort = 3000
+
+[nix]
+packages = ["zip"]
